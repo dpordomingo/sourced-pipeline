@@ -3,7 +3,7 @@ remove := rm -rf
 docker-remove-image := docker rmi -f
 docker-remove-container := docker rm -f
 docker-build := docker build --force-rm --rm
-docker-run := docker run --privileged --detach --rm
+docker-run := docker run --privileged --rm
 docker-exec := docker exec --interactive --tty
 docker-logs := docker logs -f
 docker-save := docker save
@@ -15,16 +15,19 @@ imageName := pipeline-image
 imageNameBak := pipeline-image-old
 imageTar := pipeline-image-tar
 containerName := pipeline-container
+jupyter-port := 8080
 
 docker-image-rebuild: docker-image-build docker-image-bak-drop
 
 docker-image-build: docker-clean-image
 	$(docker-build) --tag $(imageName) . \
-		--build-arg CONFIG_ENGINE_VERSION=${CONFIG_ENGINE_VERSION}
+		--build-arg CONFIG_ENGINE_VERSION=${CONFIG_ENGINE_VERSION} \
+		--build-arg CONFIG_JUPYTER_PORT=${jupyter-port}
 
 docker-run: docker-clean-container
 	$(docker-run) \
 		--name $(containerName) \
+		--publish ${jupyter-port}:${jupyter-port} \
 		--env CONFIG_ROVERS_VERSION=${CONFIG_ROVERS_VERSION} \
 		--env CONFIG_BORGES_VERSION=${CONFIG_BORGES_VERSION} \
 		--env CONFIG_BBLFSH_VERSION=${CONFIG_BBLFSH_VERSION} \
@@ -33,6 +36,7 @@ docker-run: docker-clean-container
 		--env CONFIG_DBPASS=${CONFIG_DBPASS} \
 		--env CONFIG_DBNAME=${CONFIG_DBNAME} \
 		--env CONFIG_GITHUB_TOKEN=${CONFIG_GITHUB_TOKEN} \
+		--env CONFIG_JUPYTER_PORT=${jupyter-port} \
 		$(imageName)
 
 docker-sh:

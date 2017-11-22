@@ -13,6 +13,9 @@ ENV CONFIG_ROOT_REPOSITORIES_DIR ${USER_HOME}/borges/root
 ARG CONFIG_ENGINE_VERSION
 ENV CONFIG_ENGINE_VERSION ${CONFIG_ENGINE_VERSION}
 
+ARG CONFIG_JUPYTER_PORT
+ENV CONFIG_JUPYTER_PORT ${CONFIG_JUPYTER_PORT}
+
 # Prepare the environment
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
@@ -51,10 +54,10 @@ RUN apt-get install --assume-yes \
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 ENV SPARK_HOME ${USER_HOME}/spark
 
-# Install Python, source{d} py-engine
+# Install Python, source{d} py-engine and Jupyter
 RUN apt-get install --assume-yes \
         python3 python3-pip && \
-    pip3 install --upgrade pip sourced-engine
+    pip3 install --upgrade pip sourced-engine jupyter
 ENV PYSPARK_PYTHON python3
 ENV PYSPARK_SUBMIT_ARGS --packages tech.sourced:engine:${CONFIG_ENGINE_VERSION} pyspark-shell
 
@@ -65,5 +68,7 @@ COPY sources/entrypoint.sh ${USER_HOME}/entrypoint.sh
 COPY sources/.bashrc ${USER_HOME}/.bashrc-custom
 RUN chmod +x ${USER_HOME}/entrypoint.sh && \
     echo "source ${USER_HOME}/.bashrc-custom" >> ${USER_HOME}/.bashrc
+
+EXPOSE ${CONFIG_JUPYTER_PORT}
 
 ENTRYPOINT ${USER_HOME}/entrypoint.sh
