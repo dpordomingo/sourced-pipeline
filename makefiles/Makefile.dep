@@ -1,0 +1,70 @@
+# Tools
+wget := wget
+mkdir := mkdir -p
+move := mv -f
+copy := cp -R
+remove := rm -rf
+uncompress := tar -xf
+
+# env
+build_path := $(wd)/build/
+tmp_path := $(build_path)/tmp/
+bin_path := $(build_path)/bin/
+
+
+# binaries
+rovers := $(bin_path)/rovers_v$(CONFIG_ROVERS_VERSION)
+borges := $(bin_path)/borges_v$(CONFIG_BORGES_VERSION)
+bblfshd := $(bin_path)/bblfshd_v$(CONFIG_BBLFSH_VERSION)
+bblfshctl := $(bin_path)/bblfshctl_v$(CONFIG_BBLFSH_VERSION)
+spark := $(build_path)/spark/spark.tgz
+
+# binaries: rovers, borges, bblfsh
+binary_url = https://github.com/$(1)/$(2)/releases/download/$(3)/$(4)_$(3)_linux_amd64.tar.gz
+binaries: $(rovers) $(borges) $(bblfshd) $(bblfshctl) $(spark)
+
+define download_github_binary
+	$(mkdir) $(tmp_path)
+	$(mkdir) $(bin_path)
+	$(remove) $(build_path)/$(4)_*
+	$(wget) "$(call binary_url,$(1),$(2),$(3),$(4))" --output-document=$(tmp_path)/$(4)_$(3).tar.gz
+	$(uncompress) $(tmp_path)/$(4)_$(3).tar.gz --directory=$(tmp_path)
+	$(move) $(tmp_path)/$(4)_linux_amd64/$(4) $(bin_path)/$(4)_$(3)
+endef
+
+$(rovers):
+	$(call download_github_binary,src-d,rovers,v$(CONFIG_ROVERS_VERSION),rovers)
+	
+$(borges):
+	$(call download_github_binary,src-d,borges,v$(CONFIG_BORGES_VERSION),borges)
+
+$(bblfshd):
+	$(call download_github_binary,bblfsh,bblfshd,v$(CONFIG_BBLFSH_VERSION),bblfshd)
+
+$(bblfshctl):
+	$(call download_github_binary,bblfsh,bblfshd,v$(CONFIG_BBLFSH_VERSION),bblfshctl)
+
+# binaries: spark
+spark_url = https://www.apache.org/dyn/mirrors/mirrors.cgi?action=download&filename=spark/spark-2.2.0/spark-2.2.0-bin-hadoop2.7.tgz
+
+$(spark):
+	$(mkdir) `dirname $(spark)`
+	$(wget) "$(call spark_url)" --output-document=$(spark)
+
+
+# rabbitmq
+rabbitmq_key := $(build_path)/rabbitmq/key.asc
+
+$(rabbitmq_key):
+	$(mkdir) `dirname $(rabbitmq_key)`
+	$(wget) https://www.rabbitmq.com/rabbitmq-release-signing-key.asc --output-document=$(rabbitmq_key)
+
+
+# dependencies
+dependencies-build: binaries $(rabbitmq_key) clean-tmp
+
+dependencies-clean:
+	$(remove) $(build_path)
+
+clean-tmp:
+	$(remove) $(tmp_path)

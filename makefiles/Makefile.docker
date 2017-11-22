@@ -1,0 +1,67 @@
+# Tools
+remove := rm -rf
+docker-remove-image := docker rmi -f
+docker-remove-container := docker rm -f
+docker-build := docker build --force-rm --rm
+docker-run := docker run --privileged --detach --rm
+docker-exec := docker exec --interactive --tty
+docker-logs := docker logs -f
+docker-save := docker save
+docker-load := docker load
+docker-tag := docker tag
+
+# env
+imageName := pipeline-image
+imageNameBak := pipeline-image-old
+imageTar := pipeline-image-tar
+containerName := pipeline-container
+
+docker-image-rebuild: docker-image-build docker-image-bak-drop
+
+docker-image-build: docker-clean-image
+	$(docker-build) --tag $(imageName) .
+
+docker-run: docker-clean-container
+	$(docker-run) \
+		--name $(containerName) \
+		--env CONFIG_ROVERS_VERSION=${CONFIG_ROVERS_VERSION} \
+		--env CONFIG_BORGES_VERSION=${CONFIG_BORGES_VERSION} \
+		--env CONFIG_BBLFSH_VERSION=${CONFIG_BBLFSH_VERSION} \
+		--env CONFIG_ENGINE_VERSION=${CONFIG_ENGINE_VERSION} \
+		--env CONFIG_DBUSER=${CONFIG_DBUSER} \
+		--env CONFIG_DBPASS=${CONFIG_DBPASS} \
+		--env CONFIG_DBNAME=${CONFIG_DBNAME} \
+		--env CONFIG_GITHUB_TOKEN=${CONFIG_GITHUB_TOKEN} \
+		$(imageName)
+
+docker-sh:
+	$(docker-exec) $(containerName) bash
+
+docker-logs:
+	$(docker-logs) $(containerName)
+
+docker-image-bak:
+	$(docker-tag) $(imageName) $(imageNameBak) || true
+
+docker-image-bak-drop:
+	$(docker-remove-image) $(imageNameBak) || true
+
+docker-clean: docker-clean-image
+
+docker-clean-dangling: docker-clean docker-image-bak-drop
+	$(docker-remove-image) `docker images -f "dangling=true" -q` || true
+
+docker-clean-intermediate-layers: docker-save docker-clean-dangling docker-restore
+
+docker-clean-image: docker-clean-container docker-image-bak
+	$(docker-remove-image) $(imageName) || true
+
+docker-clean-container:
+	$(docker-remove-container) $(containerName) || true
+
+docker-save:
+	$(docker-save) --output $(imageTar) $(imageName)
+
+docker-restore:
+	$(docker-load) --input $(imageTar)
+	$(remove) $(imageTar)
