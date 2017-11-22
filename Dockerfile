@@ -42,7 +42,7 @@ ENV SPARK_HOME ${USER_HOME}/spark
 
 RUN apt-get --assume-yes install python3 python3-pip && \
     pip3 install --upgrade pip && \
-    pip3 install sourced-engine
+    pip3 install sourced-engine jupyter
 ENV PYSPARK_PYTHON python3
 
 COPY examples ${USER_HOME}/examples

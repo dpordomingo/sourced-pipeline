@@ -6,6 +6,7 @@ Based in the [source{d} stack deployment process](https://docs.google.com/docume
 - [source{d} engine](https://engine.sourced.tech)
 - [babelfish](https://doc.bblf.sh)
 - [rovers](https://github.com/src-d/rovers) and [borges](https://github.com/src-d/borges)
+- [Jupyter Notebook](http://jupyter.org)
 - [Apache Spark](https://spark.apache.org) for Hadoop (and [Java](https://www.java.com))
 - [RabbitMQ](https://www.rabbitmq.com) and [PostgreSQL](https://www.postgresql.org)
 
@@ -18,6 +19,7 @@ make fresh-start;
 
 And then:
 - access the container in a bash tty running `make sh`
+- open the Jupyter Notebook at [http://localhost:8888](http://localhost:8888)
 
 ### Inside the container tty
 

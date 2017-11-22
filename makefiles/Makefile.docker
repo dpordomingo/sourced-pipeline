@@ -3,7 +3,7 @@ remove := rm -rf
 docker-remove-image := docker rmi -f
 docker-remove-container := docker rm -f
 docker-build := docker build --force-rm --rm
-docker-run := docker run --privileged --detach --rm
+docker-run := docker run --privileged --rm
 docker-exec := docker exec --interactive --tty
 docker-logs := docker logs -f
 docker-save := docker save
@@ -24,6 +24,7 @@ docker-image-build: docker-clean-image
 docker-run: docker-clean-container
 	$(docker-run) \
 		--name $(containerName) \
+		--publish 8888:8888 \
 		--env CONFIG_ROVERS_VERSION=${CONFIG_ROVERS_VERSION} \
 		--env CONFIG_BORGES_VERSION=${CONFIG_BORGES_VERSION} \
 		--env CONFIG_BBLFSH_VERSION=${CONFIG_BBLFSH_VERSION} \

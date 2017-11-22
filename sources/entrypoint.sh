@@ -23,5 +23,7 @@ bblfshd &
 bblfshctl driver install --all
 bblfshctl driver list
 
-echo && echo "DONE......"
-sleep infinity
+echo && echo "Enviroment is ready to be used"
+
+echo && echo "Starting Jupyter Notebook"
+cd examples && jupyter notebook --NotebookApp.token= --ip=0.0.0.0 --allow-root
