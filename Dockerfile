@@ -19,7 +19,7 @@ ENV CONFIG_JUPYTER_PORT ${CONFIG_JUPYTER_PORT}
 # Prepare the environment
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
-    apt-get install --assume-yes \
+    apt-get install --assume-yes --no-install-suggests --no-install-recommends \
         apt-utils sudo vim
 
 # Install Rovers, Borges and its dependences: PostgreSQL and RabbitMQ
@@ -27,25 +27,25 @@ COPY build/rabbitmq/key.asc /tmp/rabbitmq-key.asc
 COPY sources/rabbitmq/rabbitmq.list /etc/apt/sources.list.d/rabbitmq.list
 RUN apt-key add /tmp/rabbitmq-key.asc && \
     apt-get update && \
-    apt-get install --assume-yes \
+    apt-get install --assume-yes --no-install-suggests --no-install-recommends \
         postgresql rabbitmq-server && \
     rm -rf /tmp/rabbitmq-key.asc
 COPY build/bin/rovers_* /usr/local/bin/rovers
 COPY build/bin/borges_* /usr/local/bin/borges
 
 # Install Babelfish and its dependencies
-RUN apt-get install --assume-yes \
+RUN apt-get install --assume-yes --no-install-suggests --no-install-recommends \
         software-properties-common && \
     add-apt-repository --yes ppa:alexlarsson/flatpak && \
     apt-get update && \
-    apt-get install --assume-yes \
+    apt-get install --assume-yes --no-install-suggests --no-install-recommends \
         libostree-1-1 tzdata
 COPY build/bin/bblfshd_* /usr/local/bin/bblfshd
 COPY build/bin/bblfshctl_* /usr/local/bin/bblfshctl
 
 # Install Spark and its dependencies: Java JRE
 COPY build/spark/spark.tgz /tmp/spark/spark.tgz
-RUN apt-get install --assume-yes \
+RUN apt-get install --assume-yes --no-install-suggests --no-install-recommends \
         openjdk-8-jre && \
     mkdir -p /tmp/spark/unzipped && \
     tar -xzf /tmp/spark/spark.tgz --directory=/tmp/spark/unzipped && \
@@ -55,9 +55,10 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 ENV SPARK_HOME ${USER_HOME}/spark
 
 # Install Python, source{d} py-engine and Jupyter
-RUN apt-get install --assume-yes \
+RUN apt-get install --assume-yes --no-install-suggests --no-install-recommends \
         python3 python3-pip && \
-    pip3 install --upgrade pip sourced-engine jupyter
+    pip3 install --upgrade --no-cache-dir pip setuptools && \
+    pip3 install --upgrade --no-cache-dir sourced-engine jupyter
 ENV PYSPARK_PYTHON python3
 ENV PYSPARK_SUBMIT_ARGS --packages tech.sourced:engine:${CONFIG_ENGINE_VERSION} pyspark-shell
 
