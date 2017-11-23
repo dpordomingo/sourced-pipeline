@@ -11,14 +11,21 @@ CONFIG_DBUSER ?= gemini
 CONFIG_DBPASS ?= geminis
 CONFIG_DBNAME ?= geminidb
 
-CONFIG_GITHUB_TOKEN ?= 
-
 # env
 wd := $(shell pwd)
+envFile := $(wd)/.env
+envExample := $(wd)/.env.example
+
+$(envFile):
+	$(copy) $(envExample) $(envFile)
+
+# Tools
+copy := cp -R
 
 # Makefiles
 -include makefiles/Makefile.dep
 -include makefiles/Makefile.docker
+-include $(envFile)
 
 ## Enters in a brand new container with a brand new image
 fresh-start: rebuild restart
