@@ -5,8 +5,8 @@ WORKDIR ${USER_HOME}
 
 ENV PATH $PATH:${USER_HOME}/spark/bin
 
-ENV CONFIG_DBHOST 127.0.0.1
-ENV CONFIG_BROKER_URL amqp://guest:guest@127.0.0.1:5672/
+ENV CONFIG_DBHOST db
+ENV CONFIG_BROKER_URL amqp://guest:guest@rabbit:5672/
 ENV CONFIG_TEMP_DIR /tmp/borges
 ENV CONFIG_ROOT_REPOSITORIES_DIR ${USER_HOME}/borges/root
 
@@ -14,13 +14,6 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
     apt-get install --assume-yes apt-utils sudo vim
 
-COPY build/rabbitmq/key.asc /tmp/rabbitmq-key.asc
-COPY sources/rabbitmq/rabbitmq.list /etc/apt/sources.list.d/rabbitmq.list
-RUN apt-get install --assume-yes postgresql && \
-    apt-key add /tmp/rabbitmq-key.asc && \
-    apt-get update && \
-    apt-get --assume-yes install rabbitmq-server && \
-    rm -rf /tmp/rabbitmq-key.asc
 COPY build/bin/rovers_* /usr/local/bin/rovers
 COPY build/bin/borges_* /usr/local/bin/borges
 
