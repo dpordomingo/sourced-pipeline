@@ -51,17 +51,8 @@ $(spark):
 	$(mkdir) `dirname $(spark)`
 	$(wget) "$(call spark_url)" --output-document=$(spark)
 
-
-# rabbitmq
-rabbitmq_key := $(build_path)/rabbitmq/key.asc
-
-$(rabbitmq_key):
-	$(mkdir) `dirname $(rabbitmq_key)`
-	$(wget) https://www.rabbitmq.com/rabbitmq-release-signing-key.asc --output-document=$(rabbitmq_key)
-
-
 # dependencies
-dependencies-build: binaries $(rabbitmq_key) clean-tmp
+dependencies-build: binaries clean-tmp
 
 dependencies-clean:
 	$(remove) $(build_path)
