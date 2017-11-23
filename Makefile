@@ -11,7 +11,7 @@ CONFIG_DBUSER ?= gemini
 CONFIG_DBPASS ?= geminis
 CONFIG_DBNAME ?= geminidb
 
-CONFIG_GITHUB_TOKEN ?= 000b8966e33c0192ab20263d376b8e1cb6990b45
+CONFIG_GITHUB_TOKEN ?= 
 
 # env
 wd := $(shell pwd)
